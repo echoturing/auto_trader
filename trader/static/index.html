@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>配置页面</title>
+    <style>
+        pre {
+            outline: 1px solid #ccc;
+            padding: 5px;
+            margin: 5px;
+        }
+
+        .string {
+            color: green;
+        }
+
+        .number {
+            color: darkorange;
+        }
+
+        .boolean {
+            color: blue;
+        }
+
+        .null {
+            color: magenta;
+        }
+
+        .key {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+<div id="content">
+    <div id="status">
+    </div>
+    <div id="control">
+        <button type="button" class="btn btn-success" id="resume" onclick="resume()">运行</button>
+        <button type="button" class="btn btn-warning" id="pause" onclick="pause()">暂停</button>
+    </div>
+    <div id="config">
+
+    </div>
+    <div>
+        <a href="/new/balance" target="_blank">点击开启新页面</a>
+        <pre id="balance">
+
+        </pre>
+    </div>
+
+</div>
+
+<script>
+
+    String.prototype.format = function () {
+        var args = arguments;
+        return this.replace(/\{(\d+)\}/g,
+                function (m, i) {
+                    return args[i];
+                });
+    }
+
+    function get_balances() {
+        $.ajax({
+            url: "/new/balance",
+            type: "GET",
+            success: function (data) {
+                var balance_div = $('<pre id="balance">{0}</pre>'.format(syntaxHighlight(data)));
+                $("#balance").replaceWith(balance_div)
+            }
+        })
+    }
+
+    function get_config() {
+        $.ajax({
+            url: "/new/config",
+            type: "GET",
+            success: function (data) {
+                alert(data)
+            }
+        })
+    }
+
+    function set_config() {
+        $.ajax({
+            url: "/new/config",
+            data: JSON.stringify({}),
+            type: "PUT",
+            success: function (data) {
+                alert(data)
+            }
+        })
+    }
+
+    function pause() {
+        $.ajax({
+            url: "/new/pause",
+            type: "POST",
+            success: function (data) {
+                alert(data)
+            }
+        })
+    }
+
+    function resume() {
+        $.ajax({
+            url: "/new/resume",
+            type: "POST",
+            success: function (data) {
+                alert(data)
+            }
+        })
+    }
+
+    function get_status() {
+        $.ajax({
+            url: "/new/status",
+            type: "GET",
+            success: function (data) {
+                var running = data["running"];
+                var temp_true = '<button type="button" class="btn btn-success">运行中</button>';
+                var temp_false = '<button type="button" class="btn btn-warning">暂停中</button>';
+                if (running == true) {
+                    document.getElementById("status").innerHTML = temp_true;
+                } else {
+                    document.getElementById("status").innerHTML = temp_false;
+                }
+
+            }
+        })
+    }
+
+    setInterval(get_status, 1000);//更新状态
+    setInterval(get_balances, 10000); //更新余额
+    function syntaxHighlight(json) {
+        if (typeof json != 'string') {
+            json = JSON.stringify(json, undefined, 2);
+        }
+        json = json.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
+        return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+            var cls = 'number';
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'key';
+                } else {
+                    cls = 'string';
+                }
+            } else if (/true|false/.test(match)) {
+                cls = 'boolean';
+            } else if (/null/.test(match)) {
+                cls = 'null';
+            }
+            return '<span class="' + cls + '">' + match + '</span>';
+        });
+    }
+</script>
+</body>
+</html>

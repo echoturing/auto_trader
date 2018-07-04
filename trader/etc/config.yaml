@@ -1,0 +1,16 @@
+huobi:
+  key: ""
+  secret: ""
+binance:
+  key: ""
+  secret: ""
+bfx:
+  key: ""
+  secret: ""
+# 会发送钉钉消息到这个链接
+# https://oapi.dingtalk.com/robot/send?access_token=331bbfcc5e2bcef250172803ab37537f4809baf2125545f772dc91237e119
+dingTalk:
+  eos_eth: ""
+  eos_btc: ""
+  eth_btc: ""
+  alert: ""
